@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Streams")]
-[assembly: AssemblyDescription("Stream classes")]
+[assembly: AssemblyTitle("Streams.Tests")]
+[assembly: AssemblyDescription("Unit-tests for Streams")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Streams")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9c3f4417-3ff0-4231-8b74-ec704251617c")]
+[assembly: Guid("8afe26a0-82f4-4bd1-9ed0-74d270a37da4")]
 
 // Version information for an assembly consists of the following four values:
 //
