@@ -11,9 +11,10 @@ namespace Streams
     public class CombinedStream : Stream
     {
         private readonly Stream[] _UnderlyingStreams;
-        private readonly Int64[] _UnderlyingStartingPositions;
-        private Int64 _Position;
-        private readonly Int64 _TotalLength;
+        private readonly long[] _UnderlyingStartingPositions;
+        private readonly long _TotalLength;
+
+        private long _Position;
         private int _Index;
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace Streams
             }
 
             _UnderlyingStreams = new Stream[underlyingStreams.Length];
-            _UnderlyingStartingPositions = new Int64[underlyingStreams.Length];
+            _UnderlyingStartingPositions = new long[underlyingStreams.Length];
             Array.Copy(underlyingStreams, _UnderlyingStreams, underlyingStreams.Length);
 
             _Position = 0;
@@ -47,15 +48,9 @@ namespace Streams
 
             _UnderlyingStartingPositions[0] = 0;
             for (int index = 1; index < _UnderlyingStartingPositions.Length; index++)
-            {
-                _UnderlyingStartingPositions[index] =
-                    _UnderlyingStartingPositions[index - 1] +
-                    _UnderlyingStreams[index - 1].Length;
-            }
+                _UnderlyingStartingPositions[index] = _UnderlyingStartingPositions[index - 1] + _UnderlyingStreams[index - 1].Length;
 
-            _TotalLength =
-                _UnderlyingStartingPositions[_UnderlyingStartingPositions.Length - 1] +
-                _UnderlyingStreams[_UnderlyingStreams.Length - 1].Length;
+            _TotalLength = _UnderlyingStartingPositions[_UnderlyingStartingPositions.Length - 1] + _UnderlyingStreams[_UnderlyingStreams.Length - 1].Length;
         }
 
         /// <summary>
@@ -67,7 +62,7 @@ namespace Streams
         /// <returns>
         /// Always <c>true</c> for <see cref="CombinedStream"/>.
         /// </returns>
-        public override Boolean CanRead
+        public override bool CanRead
         {
             get
             {
@@ -84,7 +79,7 @@ namespace Streams
         /// <returns>
         /// Always <c>true</c> for <see cref="CombinedStream"/>.
         /// </returns>
-        public override Boolean CanSeek
+        public override bool CanSeek
         {
             get
             {
@@ -101,7 +96,7 @@ namespace Streams
         /// <returns>
         /// Always <c>false</c> for <see cref="CombinedStream"/>.
         /// </returns>
-        public override Boolean CanWrite
+        public override bool CanWrite
         {
             get
             {
@@ -116,9 +111,7 @@ namespace Streams
         public override void Flush()
         {
             foreach (Stream stream in _UnderlyingStreams)
-            {
                 stream.Flush();
-            }
         }
 
         /// <summary>
@@ -132,7 +125,7 @@ namespace Streams
         /// </returns>
         /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking. </exception>
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-        public override Int64 Length
+        public override long Length
         {
             get
             {
@@ -148,7 +141,7 @@ namespace Streams
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         /// <exception cref="T:System.NotSupportedException">The stream does not support seeking. </exception>
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-        public override Int64 Position
+        public override long Position
         {
             get
             {
@@ -158,27 +151,18 @@ namespace Streams
             set
             {
                 if (value < 0 || value > _TotalLength)
-                    throw new ArgumentOutOfRangeException("Position");
+                    throw new ArgumentOutOfRangeException("value");
 
                 _Position = value;
                 if (value == _TotalLength)
-                {
                     _Index = _UnderlyingStreams.Length - 1;
-                    _Position = _UnderlyingStreams[_Index].Length;
-                }
-
                 else
                 {
                     while (_Index > 0 && _Position < _UnderlyingStartingPositions[_Index])
-                    {
                         _Index--;
-                    }
 
-                    while (_Index < _UnderlyingStreams.Length - 1 &&
-                           _Position >= _UnderlyingStartingPositions[_Index] + _UnderlyingStreams[_Index].Length)
-                    {
+                    while (_Index < _UnderlyingStreams.Length - 1 && _Position >= _UnderlyingStartingPositions[_Index] + _UnderlyingStreams[_Index].Length)
                         _Index++;
-                    }
                 }
             }
         }
@@ -198,7 +182,7 @@ namespace Streams
         /// <exception cref="T:System.ArgumentNullException">buffer is null. </exception>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         /// <exception cref="T:System.ArgumentOutOfRangeException">offset or count is negative. </exception>
-        public override int Read(Byte[] buffer, int offset, int count)
+        public override int Read(byte[] buffer, int offset, int count)
         {
             int result = 0;
             while (count > 0)

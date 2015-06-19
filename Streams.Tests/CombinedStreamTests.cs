@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
+// ReSharper disable ObjectCreationAsStatement
+// ReSharper disable PossibleNullReferenceException
 
 namespace Streams.Tests
 {
@@ -52,6 +55,22 @@ namespace Streams.Tests
             var cs = new CombinedStream(us1, us2, us3);
             Assert.That(cs.Seek(0, SeekOrigin.End), Is.EqualTo(3), "Seek");
             Assert.That(cs.Position, Is.EqualTo(3), "Position");
+        }
+
+        [Test]
+        [TestCase(0, 5)]
+        [TestCase(1, 5)]
+        [TestCase(2, 5)]
+        [TestCase(3, 5)]
+        [TestCase(4, 5)]
+        [TestCase(5, 5)]
+        public void CanSeekToAllPositionsAcrossMultipleStreams(int position, int length)
+        {
+            var streams = Enumerable.Range(0, length).Select(_ => MemStreamOfBytes(0x00)).ToArray();
+            var combined = new CombinedStream(streams);
+
+            combined.Seek(position, SeekOrigin.Begin);
+            Assert.That(combined.Position, Is.EqualTo(position));
         }
     }
 }
